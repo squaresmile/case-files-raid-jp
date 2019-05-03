@@ -12,8 +12,8 @@ def download_raid_screenshots(user, url):
     r = requests.get(url, headers=headers, allow_redirects=True)
     if not os.path.exists(f"screenshots/{user}"):
         os.mkdir(f"screenshots/{user}")
-    with open(f"screenshots/{user}/{file_name}", "wb") as f:
-        f.write(r.content)
+    with open(f"screenshots/{user}/{file_name}", "wb") as ss_img:
+        ss_img.write(r.content)
 
 @client.event
 async def on_ready():
