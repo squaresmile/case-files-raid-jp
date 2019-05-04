@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 import os
 import re
 import json
+import subprocess
 from datetime import datetime
 from datetime import timedelta
 import numpy as np
@@ -56,6 +59,8 @@ for user in user_list:
             cropped = image[72:117, 1062:1279]
         elif h == 1080 and w == 1920:
             cropped = image[72:117, 838:1066]
+        elif h == 1440 and w == 2160:
+            cropped = image[213:266, 935:1214]
 
         gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
         _, thres = cv2.threshold(gray, 65, 255, cv2.THRESH_BINARY_INV)
@@ -99,6 +104,8 @@ ax1.set_xlabel("Japan Standard Time")
 ax1.set_ylabel("Kills per Second")
 file_name = "chart.png"
 fig1.savefig(file_name, dpi=200, bbox_inches='tight')
+with open(os.devnull, "w") as f:
+    subprocess.call(["/usr/local/bin/ect", file_name], stdout=f)
 
 x = raid_data["Time"]
 y = raid_data["Kills"] / 1000000
@@ -111,9 +118,13 @@ ax2.set_xlabel("Japan Standard Time")
 ax2.set_ylabel("Kills Count (millions)")
 file_name = "kills_count.png"
 fig2.savefig(file_name, dpi=200, bbox_inches='tight')
+with open(os.devnull, "w") as f:
+    subprocess.call(["/usr/local/bin/ect", file_name], stdout=f)
 
 avg_rate = raid_data["Kills"].iloc[-1] / (raid_data["Time"].iloc[-1] - raid_data["Time"].iloc[0]).total_seconds()
 time_to_kill = (HP - raid_data["Kills"].iloc[-1])/avg_rate
 time_to_kill = pd.to_timedelta(time_to_kill, unit='s')
 
 print(f"Time to death: {time_to_kill}")
+with open("time_to_complete.txt", "w") as f:
+    f.write(str(time_to_kill))

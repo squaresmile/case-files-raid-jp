@@ -1,5 +1,5 @@
 import os
-from datetime import timezone
+from datetime import datetime, timezone, timedelta
 import discord
 import requests
 
@@ -10,9 +10,10 @@ with open("discord_api_token.txt") as f:
 if not os.path.exists("screenshots"):
     os.mkdir("screenshots")
 
-async def download_raid_screenshots(time, user, url):
-    print(f"{time:%H:%M} {user}: {url}")
-    file_name = url.split("/")[-1]
+async def download_raid_screenshots(time, user, url, file_name = None):
+    print(f"{time:%H:%M:%S}|{user}|{url}")
+    if not file_name:
+        file_name = url.split("/")[-1]
     r = requests.get(url, headers=headers, allow_redirects=True)
     if not os.path.exists(f"screenshots/{user}"):
         os.mkdir(f"screenshots/{user}")
@@ -29,7 +30,13 @@ async def on_message(message):
         if message.attachments:
             user = str(message.author.display_name)
             time = message.created_at.replace(tzinfo=timezone.utc).astimezone(tz=None)
-            for attachment in message.attachments:
-                await download_raid_screenshots(time, user, attachment.url)
+            if user == "solution":
+                created_time = message.created_at + timedelta(hours=-7)
+                file_name = f"Screenshot_{created_time:%Y%m%d-%H%M%S}.png"
+                for attachment in message.attachments:
+                    await download_raid_screenshots(time, user, attachment.url, file_name)
+            else:
+                for attachment in message.attachments:
+                    await download_raid_screenshots(time, user, attachment.url)
 
 client.run(discord_api_token)
