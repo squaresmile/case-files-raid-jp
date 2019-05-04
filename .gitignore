@@ -4,3 +4,5 @@ chart.png
 discord_api_token.txt
 timezone.json
 *.csv
+.venv/
+venv/
