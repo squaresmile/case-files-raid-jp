@@ -7,6 +7,8 @@ client = discord.Client()
 headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'}
 with open("discord_api_token.txt") as f:
     discord_api_token = f.read().strip()
+if not os.path.exists("screenshots"):
+    os.mkdir("screenshots")
 
 async def download_raid_screenshots(time, user, url):
     print(f"{time:%H:%M} {user}: {url}")
