@@ -32,11 +32,15 @@ user_list = os.listdir("screenshots")
 
 for user in user_list:
     file_list = os.listdir(f"screenshots/{user}")
-    file_list = [f for f in file_list if f.lower().endswith(".jpg")]
+    file_list = [f for f in file_list if f.lower().endswith(".jpg") or f.lower().endswith(".png")]
     user_tz = timezone_offset[user]
     for file in file_list:
-        time = file[11:26]
-        orig_time = datetime.strptime(time, "%Y%m%d-%H%M%S")
+        if user == "Aurion":
+            orig_time = file[11:30]
+            orig_time = datetime.strptime(orig_time, "%Y-%m-%d-%H-%M-%S")
+        else:
+            orig_time = file[11:26]
+            orig_time = datetime.strptime(orig_time, "%Y%m%d-%H%M%S")
         time = orig_time + timedelta(hours=user_tz)
 
         path = f"screenshots/{user}/{file}"
@@ -64,7 +68,7 @@ for user in user_list:
             dict_df["File"].append(file)
         if ocr == 0:
             if manual_data is not None and file not in list(manual_data["File"]):
-                print(f"{file}, {time}")
+                print(f"{file},{time}")
 
 df = pd.DataFrame.from_dict(dict_df)
 df = df.sort_values("Time")
