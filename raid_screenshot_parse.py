@@ -90,15 +90,27 @@ y = y.rolling(3, center=True).mean()[1:-1]
 
 pandacnv.register()
 plt.style.use('seaborn')
-fig, ax = plt.subplots(figsize=(14, 7.5))
-ax.plot(x, y)
-# plt.plot_date(x, y)
-# fig.autofmt_xdate()
+fig1, ax1 = plt.subplots(figsize=(14, 7.5))
+ax1.plot(x, y)
+fig1.autofmt_xdate()
 update_time = x.iloc[-1]
-plt.title(f"JP case files raid KPS - updated {update_time:%Y-%m-%d %H:%M} JST")
-plt.xlabel("Japan Standard Time")
-plt.ylabel("Kills per Second")
-plt.savefig("chart.png", dpi=200, bbox_inches='tight')
+ax1.set_title(f"JP case files raid KPS - updated {update_time:%Y-%m-%d %H:%M} JST")
+ax1.set_xlabel("Japan Standard Time")
+ax1.set_ylabel("Kills per Second")
+file_name = "chart.png"
+fig1.savefig(file_name, dpi=200, bbox_inches='tight')
+
+x = raid_data["Time"]
+y = raid_data["Kills"] / 1000000
+fig2, ax2 = plt.subplots(figsize=(14, 7.5))
+ax2.plot(x, y)
+fig2.autofmt_xdate()
+update_time = x.iloc[-1]
+ax2.set_title(f"JP case files raid kills count - updated {update_time:%Y-%m-%d %H:%M} JST")
+ax2.set_xlabel("Japan Standard Time")
+ax2.set_ylabel("Kills Count (millions)")
+file_name = "kills_count.png"
+fig2.savefig(file_name, dpi=200, bbox_inches='tight')
 
 avg_rate = raid_data["Kills"].iloc[-1] / (raid_data["Time"].iloc[-1] - raid_data["Time"].iloc[0]).total_seconds()
 time_to_kill = (HP - raid_data["Kills"].iloc[-1])/avg_rate

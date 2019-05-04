@@ -1,5 +1,5 @@
 screenshots/
-chart.png
+*.png
 .vscode/
 discord_api_token.txt
 timezone.json
