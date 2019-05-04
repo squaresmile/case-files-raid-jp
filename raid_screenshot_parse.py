@@ -70,9 +70,8 @@ df = pd.DataFrame.from_dict(dict_df)
 df = df.sort_values("Time")
 df.to_csv("parsed_data.csv", index=False)
 
-if os.path.exists("manual_data.csv"):
-    manual = pd.read_csv("manual_data.csv", parse_dates=["Time"])
-    raid_data = pd.concat([manual, df])
+if manual_data is not None:
+    raid_data = pd.concat([manual_data, df])
 else:
     raid_data = df
 raid_data = raid_data.drop_duplicates("Time").sort_values("Time")
@@ -97,7 +96,7 @@ plt.xlabel("Japan Standard Time")
 plt.ylabel("Kills per Second")
 plt.savefig("chart.png", dpi=200, bbox_inches='tight')
 
-avg_rate = y[-10:].mean()
+avg_rate = raid_data["Kills"].iloc[-1] / (raid_data["Time"].iloc[-1] - raid_data["Time"].iloc[0]).total_seconds()
 time_to_kill = (HP - raid_data["Kills"].iloc[-1])/avg_rate
 time_to_kill = pd.to_timedelta(time_to_kill, unit='s')
 
