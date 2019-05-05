@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import timezone, timedelta
 import discord
 import requests
 
@@ -10,7 +10,7 @@ with open("discord_api_token.txt") as f:
 if not os.path.exists("screenshots"):
     os.mkdir("screenshots")
 
-async def download_raid_screenshots(time, user, url, file_name = None):
+async def download_raid_screenshots(time, user, url, file_name=None):
     print(f"{time:%H:%M:%S}|{user}|{url}")
     if not file_name:
         file_name = url.split("/")[-1]

@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 import discord
 import requests
 
@@ -7,8 +8,10 @@ headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 with open("discord_api_token.txt") as f:
     discord_api_token = f.read().strip()
 
-def download_raid_screenshots(user, url):
-    file_name = url.split("/")[-1]
+async def download_raid_screenshots(time, user, url, file_name=None):
+    print(f"{time:%Y-%m-%d %H:%M:%S},{user},{url}")
+    if not file_name:
+        file_name = url.split("/")[-1]
     r = requests.get(url, headers=headers, allow_redirects=True)
     if not os.path.exists(f"screenshots/{user}"):
         os.mkdir(f"screenshots/{user}")
@@ -20,11 +23,17 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(client))
     for channel in client.get_all_channels():
         if str(channel) == "jp-event-raid":
-            async for message in channel.history():
+            async for message in channel.history(limit=None):
                 if message.attachments:
                     user = str(message.author.display_name)
-                    for attachment in message.attachments:
-                        print(f"{user} {attachment.url}")
-                        download_raid_screenshots(user, attachment.url)
+                    time = message.created_at
+                    if user == "solution":
+                        created_time = message.created_at + timedelta(hours=-7)
+                        file_name = f"Screenshot_{created_time:%Y%m%d-%H%M%S}.png"
+                        for attachment in message.attachments:
+                            await download_raid_screenshots(time, user, attachment.url, file_name)
+                    else:
+                        for attachment in message.attachments:
+                            await download_raid_screenshots(time, user, attachment.url)
 
 client.run(discord_api_token)
