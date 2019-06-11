@@ -1,39 +1,32 @@
 import os
-from datetime import timedelta
+from datetime import datetime
 import discord
-import requests
+
+LINKS_FILE = "discord_links.csv"
+LAST_DATE = datetime(2019, 5, 22)
 
 client = discord.Client()
 headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'}
-with open("discord_api_token.txt") as f:
+with open("discord_api_token.txt", encoding="utf-8") as f:
     discord_api_token = f.read().strip()
 
-async def download_raid_screenshots(time, user, url, file_name=None):
-    print(f"{time:%Y-%m-%d %H:%M:%S},{user},{url}")
-    if not file_name:
-        file_name = url.split("/")[-1]
-    r = requests.get(url, headers=headers, allow_redirects=True)
-    if not os.path.exists(f"screenshots/{user}"):
-        os.mkdir(f"screenshots/{user}")
-    with open(f"screenshots/{user}/{file_name}", "wb") as ss_img:
-        ss_img.write(r.content)
+if not os.path.exists(LINKS_FILE):
+    with open(LINKS_FILE, "w") as f:
+        f.write("UTC Time,User,Attachment Link\n")
 
 @client.event
 async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+    print(f"We have logged in as {client.user}")
     for channel in client.get_all_channels():
-        if str(channel) == "jp-event-raid":
+        if str(channel) == "rashoumon-raid":
             async for message in channel.history(limit=None):
-                if message.attachments:
-                    user = str(message.author.display_name)
-                    time = message.created_at
-                    if user == "solution":
-                        created_time = message.created_at + timedelta(hours=-7)
-                        file_name = f"Screenshot_{created_time:%Y%m%d-%H%M%S}.png"
-                        for attachment in message.attachments:
-                            await download_raid_screenshots(time, user, attachment.url, file_name)
-                    else:
-                        for attachment in message.attachments:
-                            await download_raid_screenshots(time, user, attachment.url)
+                with open(LINKS_FILE, "a", encoding="utf-8") as out:
+                    if message.attachments:
+                        user = str(message.author.display_name)
+                        print(user)
+                        time = message.created_at
+                        if time < LAST_DATE:
+                            for attachment in message.attachments:
+                                out.write(f"{time},{user},{attachment.url}\n")
 
 client.run(discord_api_token)
