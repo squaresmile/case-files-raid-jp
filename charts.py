@@ -46,30 +46,33 @@ def make_dps_chart(df, output="kps.png"):
     # for _ in range(5):
     #     df = df[df["Kills"] > df["Kills"].shift(-1).fillna(0)]
     x = df.iloc[4:, 0]
-    y = df["Kills"].diff(4)[4:] / df["Japan Standard Time"].diff(4).dt.total_seconds()[4:]
+    y = (
+        df["Kills"].diff(4)[4:]
+        / df["Japan Standard Time"].diff(4).dt.total_seconds()[4:]
+    )
     x = x[y >= 0]
     y = y[y >= 0]
     # y = y.rolling(4, center=True).mean()
-    plt.style.use('seaborn')
+    plt.style.use("seaborn")
     fig, ax = plt.subplots(figsize=(14, 7.5))
-    ax.plot(x, y, marker='o', markersize=3, linestyle="None")
+    ax.plot(x, y, marker="o", markersize=3, linestyle="None")
     ax.set_title("JP Case Files raid KPS")
     ax.set_xlabel("Japan Standard Time")
     ax.set_ylabel("Kills per second")
     ax.set_ylim(top=680, bottom=-30)
-    fig.savefig(output, dpi=200, bbox_inches='tight')
+    fig.savefig(output, dpi=200, bbox_inches="tight")
 
 
 def make_hp_chart(df, output="kills.png"):
     x = df["Japan Standard Time"]
     y = df["Kills"] / 1000000
-    plt.style.use('seaborn')
+    plt.style.use("seaborn")
     fig, ax = plt.subplots(figsize=(14, 7.5))
     ax.plot(x, y)
     ax.set_title("JP Case Files raid kills count")
     ax.set_xlabel("Japan Standard Time")
     ax.set_ylabel("Kills (millions)")
-    fig.savefig(output, dpi=200, bbox_inches='tight')
+    fig.savefig(output, dpi=200, bbox_inches="tight")
 
 
 if __name__ == "__main__":
