@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
-import pandas.plotting._converter as pandacnv
+from pandas.plotting import register_matplotlib_converters
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.units as munits
 
 INPUT = "parsed_hp.csv"
 
@@ -48,14 +50,12 @@ def make_dps_chart(df, output="kps.png"):
     x = x[y >= 0]
     y = y[y >= 0]
     # y = y.rolling(4, center=True).mean()
-    pandacnv.register()
     plt.style.use('seaborn')
     fig, ax = plt.subplots(figsize=(14, 7.5))
     ax.plot(x, y, marker='o', markersize=3, linestyle="None")
-    fig.autofmt_xdate()
     ax.set_title("JP Case Files raid KPS")
     ax.set_xlabel("Japan Standard Time")
-    ax.set_ylabel("Kills per Second")
+    ax.set_ylabel("Kills per second")
     ax.set_ylim(top=680, bottom=-30)
     fig.savefig(output, dpi=200, bbox_inches='tight')
 
@@ -63,11 +63,9 @@ def make_dps_chart(df, output="kps.png"):
 def make_hp_chart(df, output="kills.png"):
     x = df["Japan Standard Time"]
     y = df["Kills"] / 1000000
-    pandacnv.register()
     plt.style.use('seaborn')
     fig, ax = plt.subplots(figsize=(14, 7.5))
     ax.plot(x, y)
-    fig.autofmt_xdate()
     ax.set_title("JP Case Files raid kills count")
     ax.set_xlabel("Japan Standard Time")
     ax.set_ylabel("Kills (millions)")
@@ -75,6 +73,9 @@ def make_hp_chart(df, output="kills.png"):
 
 
 if __name__ == "__main__":
+    register_matplotlib_converters()
+    converter = mdates.ConciseDateConverter()
+    munits.registry[np.datetime64] = converter
     all_df = pd.read_csv(INPUT, parse_dates=[0, 2], dtype={"Kills": "Int64"})
     all_df = clean_data(all_df)
     all_df.to_csv("cleaned_data.csv", index=False)
